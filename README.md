@@ -15,6 +15,112 @@ The study evaluates paired routine and accelerated MRI acquisitions across four 
 </p>
 
 ---
+## Preprocessing
+
+MRI data were prepared in two stages prior to the downstream analyses:
+
+1. **DICOM-to-NIfTI conversion**
+2. **Multimodal MRI preprocessing of T1-weighted, T2-weighted, and FLAIR images**
+
+The corresponding scripts are provided in the `preprocessing/` directory.
+
+### DICOM to NIfTI Conversion
+
+Raw DICOM MRI series can be converted to compressed NIfTI (`.nii.gz`) format using:
+
+`preprocessing/dicom_to_nifti.py`
+
+The conversion utility uses `pydicom` for DICOM handling and `dicom2nifti` for NIfTI conversion.
+
+#### Usage
+
+```bash
+python preprocessing/dicom_to_nifti.py \
+    --input /path/to/dicom_dataset \
+    --output /path/to/nifti_output
+```
+
+The script searches subject directories for DICOM series and stores the converted NIfTI images in subject-specific output directories.
+
+---
+
+### Multimodal MRI Preprocessing
+
+Following conversion to NIfTI format, T1-weighted, T2-weighted, and FLAIR MRI volumes are preprocessed using [MRIPreprocessor](https://github.com/ReubenDo/MRIPreprocessor).
+
+Install MRIPreprocessor directly from its GitHub repository:
+
+```bash
+pip install git+https://github.com/ReubenDo/MRIPreprocessor#egg=MRIPreprocessor
+```
+
+The preprocessing script is:
+
+`preprocessing/preprocess_multimodal_mri.py`
+
+#### Usage
+
+```bash
+python preprocessing/preprocess_multimodal_mri.py \
+    --t1 /path/to/T1.nii.gz \
+    --t2 /path/to/T2.nii.gz \
+    --flair /path/to/FLAIR.nii.gz \
+    --output /path/to/output \
+    --subject-id subject001
+```
+
+The script takes three MRI modalities for each subject:
+
+- **T1-weighted MRI**
+- **T2-weighted MRI**
+- **FLAIR MRI**
+
+The T1-weighted image is used as the reference image for multimodal preprocessing.
+
+### Preprocessing Workflow
+
+```text
+Raw DICOM MRI
+      │
+      ▼
+DICOM-to-NIfTI conversion
+      │
+      ▼
+T1 + T2 + FLAIR NIfTI images
+      │
+      ▼
+MRIPreprocessor
+      │
+      ▼
+Preprocessed MRI
+      │
+      ├── 32 Brain Anatomical Segmentation
+      ├── Diagnostic Classification
+      ├── Chronological Brain Age Estimation
+      └── Longitudinal Atrophy Analysis
+```
+
+### Dependencies
+
+The preprocessing utilities require:
+
+- `pydicom`
+- `dicom2nifti`
+- `SimpleITK`
+- `nibabel`
+- `numpy`
+
+Install the required Python packages using:
+
+```bash
+pip install pydicom dicom2nifti SimpleITK nibabel numpy
+```
+
+Install MRIPreprocessor using:
+
+```bash
+pip install git+https://github.com/ReubenDo/MRIPreprocessor#egg=MRIPreprocessor
+```
 
 ## Tasks
 
