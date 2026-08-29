@@ -130,7 +130,7 @@ Whole-brain anatomical segmentation was evaluated across **32 brain structures**
 
 Code related to this task is provided in:
 
-`01_anatomical_segmentation/`
+`01_brain_anatomical_segmentation/`
 
 ---
 
@@ -180,8 +180,6 @@ Code related to this task is provided in:
 `04_longitudinal_atrophy/`
 
 ---
-
-## Repository Structure
 
 ## Repository Structure
 
