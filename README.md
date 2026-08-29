@@ -183,22 +183,26 @@ Code related to this task is provided in:
 
 ## Repository Structure
 
-    B-RAPIDD-AI-Biomarkers/
-    ├── README.md
-    ├── LICENSE
-    ├── CITATION.cff
-    ├── requirements.txt
-    │
-    ├── figures/
-    │   └── Figure1.png
-    │
-    ├── 01_anatomical_segmentation/
-    │
-    ├── 02_diagnostic_classification/
-    │
-    ├── 03_brain_age_estimation/
-    │
-    └── 04_longitudinal_atrophy/
+   B-RAPIDD-AI-Biomarkers/
+├── README.md
+├── LICENSE
+├── CITATION.cff
+├── requirements.txt
+│
+├── figures/
+│   └── Figure1.png
+│
+├── preprocessing/
+│   ├── dicom_to_nifti.py
+│   └── preprocess_multimodal_mri.py
+│
+├── 01_anatomical_segmentation/
+│
+├── 02_diagnostic_classification/
+│
+├── 03_brain_age_estimation/
+│
+└── 04_longitudinal_atrophy/
 
 Each task directory contains the code and task-specific documentation required for the corresponding analysis.
 
