@@ -197,7 +197,7 @@ B-RAPIDD-AI-Biomarkers/
 │   ├── dicom_to_nifti.py
 │   └── preprocess_multimodal_mri.py
 │
-├── 01_anatomical_segmentation/
+├── 01_brain_anatomical_segmentation/
 │
 ├── 02_diagnostic_classification/
 │
@@ -205,8 +205,6 @@ B-RAPIDD-AI-Biomarkers/
 │
 └── 04_longitudinal_atrophy/
 ```
-
-Each task directory contains the code and task-specific documentation required for the corresponding analysis.
 
 Each task directory contains the code and task-specific documentation required for the corresponding analysis.
 
