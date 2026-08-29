@@ -183,6 +183,9 @@ Code related to this task is provided in:
 
 ## Repository Structure
 
+## Repository Structure
+
+```text
 B-RAPIDD-AI-Biomarkers/
 ├── README.md
 ├── LICENSE
@@ -203,6 +206,9 @@ B-RAPIDD-AI-Biomarkers/
 ├── 03_brain_age_estimation/
 │
 └── 04_longitudinal_atrophy/
+```
+
+Each task directory contains the code and task-specific documentation required for the corresponding analysis.
 
 Each task directory contains the code and task-specific documentation required for the corresponding analysis.
 
