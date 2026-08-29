@@ -183,7 +183,7 @@ Code related to this task is provided in:
 
 ## Repository Structure
 
-   B-RAPIDD-AI-Biomarkers/
+B-RAPIDD-AI-Biomarkers/
 ├── README.md
 ├── LICENSE
 ├── CITATION.cff
