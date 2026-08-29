@@ -1,14 +1,15 @@
 """
-Multimodal MRI preprocessing utility.
+Multimodal MRI preprocessing using MRIPreprocessor.
 
-This script prepares T1-weighted, T2-weighted, and FLAIR NIfTI images
-for preprocessing using the MRIPreprocessor pipeline.
+This script preprocesses T1-weighted, T2-weighted, and FLAIR MRI
+for a single subject using the MRIPreprocessor package.
 
-Inputs
-------
-T1-weighted MRI
-T2-weighted MRI
-FLAIR MRI
+The pipeline uses T1-weighted MRI as the reference image and performs
+co-registration, transformation to MNI space, skull stripping, and
+cropping.
+
+MRIPreprocessor:
+https://github.com/ReubenDo/MRIPreprocessor
 
 Example
 -------
@@ -16,47 +17,14 @@ python preprocess_multimodal_mri.py \
     --t1 /path/to/T1.nii.gz \
     --t2 /path/to/T2.nii.gz \
     --flair /path/to/FLAIR.nii.gz \
-    --output /path/to/output
+    --output /path/to/output \
+    --subject-id subject001
 """
 
 import argparse
 from pathlib import Path
 
-import SimpleITK as sitk
-
-
-def validate_image(image_path: Path, modality: str):
-    """
-    Validate that an MRI volume exists and can be read.
-
-    Parameters
-    ----------
-    image_path : Path
-        Path to the NIfTI image.
-
-    modality : str
-        Name of the MRI modality.
-
-    Returns
-    -------
-    SimpleITK.Image
-        Loaded MRI image.
-    """
-
-    if not image_path.exists():
-        raise FileNotFoundError(
-            f"{modality} image not found: {image_path}"
-        )
-
-    image = sitk.ReadImage(str(image_path))
-
-    print(
-        f"{modality}: {image_path.name} | "
-        f"size={image.GetSize()} | "
-        f"spacing={image.GetSpacing()}"
-    )
-
-    return image
+from MRIPreprocessor.mri_preprocessor import Preprocessor
 
 
 def preprocess_subject(
@@ -64,58 +32,66 @@ def preprocess_subject(
     t2_path: Path,
     flair_path: Path,
     output_dir: Path,
+    subject_id: str,
 ):
     """
-    Validate and preprocess multimodal MRI from one subject.
-
-    The preprocessing pipeline expects T1-weighted, T2-weighted,
-    and FLAIR NIfTI images.
+    Preprocess T1-weighted, T2-weighted, and FLAIR MRI.
 
     Parameters
     ----------
     t1_path : Path
-        T1-weighted MRI.
+        Path to the T1-weighted NIfTI image.
 
     t2_path : Path
-        T2-weighted MRI.
+        Path to the T2-weighted NIfTI image.
 
     flair_path : Path
-        FLAIR MRI.
+        Path to the FLAIR NIfTI image.
 
     output_dir : Path
-        Directory for preprocessing outputs.
+        Directory where preprocessing outputs will be stored.
+
+    subject_id : str
+        Subject identifier used as the output filename prefix.
     """
+
+    input_images = {
+        "T1": str(t1_path),
+        "T2": str(t2_path),
+        "FLAIR": str(flair_path),
+    }
+
+    for modality, image_path in input_images.items():
+        if not Path(image_path).exists():
+            raise FileNotFoundError(
+                f"{modality} image not found: {image_path}"
+            )
 
     output_dir.mkdir(
         parents=True,
         exist_ok=True
     )
 
-    print("Validating MRI inputs...")
+    print(f"Processing subject: {subject_id}")
+    print(f"T1:    {t1_path}")
+    print(f"T2:    {t2_path}")
+    print(f"FLAIR: {flair_path}")
 
-    validate_image(t1_path, "T1")
-    validate_image(t2_path, "T2")
-    validate_image(flair_path, "FLAIR")
+    preprocessor = Preprocessor(
+        input_images,
+        output_folder=str(output_dir),
+        reference="T1",
+        label=None,
+        prefix=f"{subject_id}_",
+        already_coregistered=False,
+        mni=True,
+        crop=True,
+    )
 
-    print("\nAll required MRI modalities were successfully loaded.")
-
-    # ------------------------------------------------------------------
-    # MRI preprocessing
-    # ------------------------------------------------------------------
-    #
-    # The B-RAPIDD preprocessing workflow uses MRIPreprocessor:
-    #
-    # https://github.com/ReubenDo/MRIPreprocessor
-    #
-    # T1, T2 and FLAIR images are provided as inputs to the preprocessing
-    # pipeline before downstream model inference.
-    #
-    # Add the MRIPreprocessor command/API used for the study here.
-    #
-    # ------------------------------------------------------------------
+    preprocessor.run_pipeline()
 
     print(
-        "\nInputs are ready for the MRIPreprocessor pipeline."
+        f"Preprocessing completed for subject: {subject_id}"
     )
 
 
@@ -123,8 +99,8 @@ def main():
 
     parser = argparse.ArgumentParser(
         description=(
-            "Preprocess T1-weighted, T2-weighted and FLAIR "
-            "MRI volumes for downstream analysis."
+            "Preprocess T1-weighted, T2-weighted, and FLAIR MRI "
+            "using MRIPreprocessor."
         )
     )
 
@@ -132,28 +108,35 @@ def main():
         "--t1",
         type=Path,
         required=True,
-        help="Path to the T1-weighted NIfTI image."
+        help="Path to the T1-weighted NIfTI image.",
     )
 
     parser.add_argument(
         "--t2",
         type=Path,
         required=True,
-        help="Path to the T2-weighted NIfTI image."
+        help="Path to the T2-weighted NIfTI image.",
     )
 
     parser.add_argument(
         "--flair",
         type=Path,
         required=True,
-        help="Path to the FLAIR NIfTI image."
+        help="Path to the FLAIR NIfTI image.",
     )
 
     parser.add_argument(
         "--output",
         type=Path,
         required=True,
-        help="Directory for preprocessing outputs."
+        help="Directory for preprocessing outputs.",
+    )
+
+    parser.add_argument(
+        "--subject-id",
+        type=str,
+        required=True,
+        help="Subject identifier used as output prefix.",
     )
 
     args = parser.parse_args()
@@ -162,7 +145,8 @@ def main():
         t1_path=args.t1,
         t2_path=args.t2,
         flair_path=args.flair,
-        output_dir=args.output
+        output_dir=args.output,
+        subject_id=args.subject_id,
     )
 
 
